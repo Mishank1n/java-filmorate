@@ -36,7 +36,7 @@ public class FilmController {
         film.setId(getNewId());
         log.info("Был установлен id = {} для фильма", film.getId());
         baseOfFilms.put(film.getId(), film);
-        log.info("Фильм создан и добавлен в базу");
+        log.info("Фильм с id = {} создан и добавлен в базу", film.getId());
         return film;
     }
 
@@ -44,13 +44,13 @@ public class FilmController {
     public Film updateFilm(@Valid @RequestBody Film newFilm) {
         log.info("Началось обновление фильма");
         if (newFilm.getId() == null) {
-            log.error("Получен фильм с пустым id ");
+            log.error("Получен фильм с пустым id");
             throw new ValidationException("Id не должен быть пустым!");
         } else if (newFilm.getReleaseDate() != null && newFilm.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.error(errorMessageOfReleaseDate);
             throw new ValidationException(errorMessageOfReleaseDate);
         } else if (baseOfFilms.containsKey(newFilm.getId())) {
-            log.info("Фильм был найден");
+            log.info("Фильм c id = {} был найден", newFilm.getId());
             Film oldFilm = baseOfFilms.get(newFilm.getId());
             if (!newFilm.getName().equals(oldFilm.getName())) {
                 log.info("Изменено имя фильма");
@@ -68,7 +68,7 @@ public class FilmController {
                 log.info("Изменена дата релиза");
                 oldFilm.setReleaseDate(newFilm.getReleaseDate());
             }
-            log.info("Фильм обновлен");
+            log.info("Фильм c id = {} обновлен", oldFilm.getId());
             return oldFilm;
         } else {
             log.error("Фильм с id = {} не найден!", newFilm.getId());

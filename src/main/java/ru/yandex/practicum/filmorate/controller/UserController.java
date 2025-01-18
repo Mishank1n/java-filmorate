@@ -38,11 +38,9 @@ public class UserController {
             throw new ValidationException(String.format("Пользователь с логином: %s уже существует!", user.getLogin()));
         }
         if (user.getName() == null) {
-            log.info("Вместо имени будет использоваться логин");
             user.setName(user.getLogin());
         }
         user.setId(getNextId());
-        log.info("Пользователю присвоен id = {}", user.getId());
         baseOfUsers.put(user.getId(), user);
         log.info("Пользователь c id = {} создан и добавлен в базу", user.getId());
         return user;
@@ -55,18 +53,14 @@ public class UserController {
             log.error("Получен пользователь с пустым id");
             throw new ValidationException("Id не должен быть пустым!");
         } else if (baseOfUsers.containsKey(newUser.getId())) {
-            log.info("Пользователь c id = {} был найден", newUser.getId());
             User oldUser = baseOfUsers.get(newUser.getId());
             if (newUser.getName() != null && !newUser.getName().equals(oldUser.getName())) {
-                log.info("Изменено имя пользователя");
                 oldUser.setName(newUser.getName());
             }
             if (newUser.getBirthday() != null && !newUser.getBirthday().equals(oldUser.getBirthday())) {
-                log.info("Изменена дата рождения пользователя");
                 oldUser.setBirthday(newUser.getBirthday());
             }
             if (newUser.getEmail() != null && !newUser.getEmail().equals(oldUser.getEmail())) {
-                log.info("Обновлен адрес электронной почты пользователя");
                 oldUser.setEmail(newUser.getEmail());
             }
             if (newUser.getLogin() != null && !newUser.getLogin().equals(oldUser.getLogin())) {
@@ -74,7 +68,6 @@ public class UserController {
                     log.error("Логин не может быть быть пустым и содержать пробелы!");
                     throw new ValidationException("Логин не может быть быть пустым и содержать пробелы!");
                 } else {
-                    log.info("Обновлен логин пользователя");
                     oldUser.setLogin(newUser.getLogin());
                 }
             }

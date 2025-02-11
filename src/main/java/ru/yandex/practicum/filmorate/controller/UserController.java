@@ -76,7 +76,7 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User newUser) {
-        log.info("Получен запрос на обновление пользователя с id = {}", newUser);
+        log.info("Получен запрос на обновление пользователя с id = {}", newUser.getId());
         return userService.updateUser(newUser);
     }
 }

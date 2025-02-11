@@ -1,85 +1,82 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
+@Getter
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
+    private final UserService userService;
     Map<Integer, User> baseOfUsers = new HashMap<>();
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
     public Collection<User> getUsers() {
-        log.info("Возвращен список пользователей");
-        return baseOfUsers.values();
+        log.info("Получен запрос на получение всех пользователей");
+        return userService.getUsers();
+    }
+
+    @GetMapping("/{user-id}")
+    public User getUser(@PathVariable("user-id") Integer userId) {
+        log.info("Получен запрос на получение пользователя с id = {}", userId);
+        return userService.getUser(userId);
+    }
+
+    @DeleteMapping("/{user-id}")
+    public String deleteUser(@PathVariable("user-id") Integer userId) {
+        log.info("Получен запрос на удаление пользователя с id = {}", userId);
+        return userService.deleteUser(userId);
     }
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-        log.info("Началось создание пользователя");
-        if (baseOfUsers.values().stream().map(User::getEmail).anyMatch(email -> user.getEmail().equals(email))) {
-            log.error("Пользователь с электронной почтой: {} уже существует!", user.getEmail());
-            throw new ValidationException(String.format("Пользователь с электронной почтой: %s уже существует!", user.getEmail()));
-        } else if (user.getLogin() == null || user.getLogin().contains(" ") || user.getLogin().isEmpty()) {
-            log.error("Логин не может быть быть пустым и содержать пробелы!");
-            throw new ValidationException("Логин не может быть быть пустым и содержать пробелы!");
-        } else if (baseOfUsers.values().stream().map(User::getLogin).anyMatch(login -> user.getLogin().equals(login))) {
-            log.error("Пользователь с логином: {} уже существует!", user.getLogin());
-            throw new ValidationException(String.format("Пользователь с логином: %s уже существует!", user.getLogin()));
-        }
-        if (user.getName() == null) {
-            user.setName(user.getLogin());
-        }
-        user.setId(getNextId());
-        baseOfUsers.put(user.getId(), user);
-        log.info("Пользователь c id = {} создан и добавлен в базу", user.getId());
-        return user;
+        log.info("Получен запрос на создание пользователя");
+        return userService.create(user);
     }
+
+    @PutMapping("/{user-id}/friends/{friend-id}")
+    public Set<Integer> addFriendToUser(@PathVariable("user-id") Integer userId, @PathVariable("friend-id") Integer friendId) {
+        log.info("Получен запрос на добавление пользователя с id = {} в друзья к пользователю с id = {}", friendId, userId);
+        return userService.addFriendToUser(userId, friendId);
+    }
+
+    @DeleteMapping("/{user-id}/friends/{friend-id}")
+    public String deleteFriendFromUserFriends(@PathVariable("user-id") Integer userId, @PathVariable("friend-id") Integer friendId) {
+        log.info("Получен запрос на удаление из списка друзей пользователя с id = {} друга с id = {}", userId, friendId);
+        return userService.deleteFriendFromUserFriends(userId, friendId);
+    }
+
+    @GetMapping("/{user-id}/friends")
+    public Collection<User> getUserFriends(@PathVariable("user-id") Integer userId) {
+        log.info("Получен запрос на получение списка друзей пользователя с id = {}", userId);
+        return userService.getUserFriends(userId);
+    }
+
+    @GetMapping("/{user-id}/friends/common/{otherUser-id}")
+    public Collection<User> getCommonFriends(@PathVariable("user-id") Integer userId, @PathVariable("otherUser-id") Integer otherUserId) {
+        log.info("Получен запрос на получение списка общих друзей пользователя с id = {} и пользователя с id = {}", userId, otherUserId);
+        return userService.getCommonFriends(userId, otherUserId);
+    }
+
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User newUser) {
-        log.info("Началось обновление фильма");
-        if (newUser.getId() == null) {
-            log.error("Получен пользователь с пустым id");
-            throw new ValidationException("Id не должен быть пустым!");
-        } else if (baseOfUsers.containsKey(newUser.getId())) {
-            User oldUser = baseOfUsers.get(newUser.getId());
-            if (newUser.getName() != null && !newUser.getName().equals(oldUser.getName())) {
-                oldUser.setName(newUser.getName());
-            }
-            if (newUser.getBirthday() != null && !newUser.getBirthday().equals(oldUser.getBirthday())) {
-                oldUser.setBirthday(newUser.getBirthday());
-            }
-            if (newUser.getEmail() != null && !newUser.getEmail().equals(oldUser.getEmail())) {
-                oldUser.setEmail(newUser.getEmail());
-            }
-            if (newUser.getLogin() != null && !newUser.getLogin().equals(oldUser.getLogin())) {
-                if (newUser.getLogin().contains(" ") || newUser.getLogin().isEmpty()) {
-                    log.error("Логин не может быть быть пустым и содержать пробелы!");
-                    throw new ValidationException("Логин не может быть быть пустым и содержать пробелы!");
-                } else {
-                    oldUser.setLogin(newUser.getLogin());
-                }
-            }
-            log.info("Пользователь c id = {} обновлен", oldUser.getId());
-            return oldUser;
-        }
-        log.error("Пользователь с id = {} не найден!", newUser.getId());
-        throw new NotFoundException(String.format("Пользователь с id = %d не найден!", newUser.getId()));
-    }
-
-    public Integer getNextId() {
-        int nextId = baseOfUsers.keySet().stream().max(Integer::compareTo).orElse(0);
-        return ++nextId;
+        log.info("Получен запрос на обновление пользователя с id = {}", newUser.getId());
+        return userService.updateUser(newUser);
     }
 }

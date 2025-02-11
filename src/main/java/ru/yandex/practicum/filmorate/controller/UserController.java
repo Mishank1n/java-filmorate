@@ -31,14 +31,14 @@ public class UserController {
         return userService.getUsers();
     }
 
-    @GetMapping("/{userId}")
-    public User getUser(@PathVariable Integer userId) {
+    @GetMapping("/{user-id}")
+    public User getUser(@PathVariable("user-id") Integer userId) {
         log.info("Получен запрос на получение пользователя с id = {}", userId);
         return userService.getUser(userId);
     }
 
-    @DeleteMapping("/{userId}")
-    public String deleteUser(@PathVariable Integer userId) {
+    @DeleteMapping("/{user-id}")
+    public String deleteUser(@PathVariable("user-id") Integer userId) {
         log.info("Получен запрос на удаление пользователя с id = {}", userId);
         return userService.deleteUser(userId);
     }
@@ -49,26 +49,26 @@ public class UserController {
         return userService.create(user);
     }
 
-    @PutMapping("/{userId}/friends/{friendId}")
-    public Set<Integer> addFriendToUser(@PathVariable Integer userId, @PathVariable Integer friendId) {
+    @PutMapping("/{user-id}/friends/{friend-id}")
+    public Set<Integer> addFriendToUser(@PathVariable("user-id") Integer userId, @PathVariable("friend-id") Integer friendId) {
         log.info("Получен запрос на добавление пользователя с id = {} в друзья к пользователю с id = {}", friendId, userId);
         return userService.addFriendToUser(userId, friendId);
     }
 
-    @DeleteMapping("/{userId}/friends/{friendId}")
-    public String deleteFriendFromUserFriends(@PathVariable Integer userId, @PathVariable Integer friendId) {
+    @DeleteMapping("/{user-id}/friends/{friend-id}")
+    public String deleteFriendFromUserFriends(@PathVariable("user-id") Integer userId, @PathVariable("friend-id") Integer friendId) {
         log.info("Получен запрос на удаление из списка друзей пользователя с id = {} друга с id = {}", userId, friendId);
         return userService.deleteFriendFromUserFriends(userId, friendId);
     }
 
-    @GetMapping("/{userId}/friends")
-    public Collection<User> getUserFriends(@PathVariable Integer userId) {
+    @GetMapping("/{user-id}/friends")
+    public Collection<User> getUserFriends(@PathVariable("user-id") Integer userId) {
         log.info("Получен запрос на получение списка друзей пользователя с id = {}", userId);
         return userService.getUserFriends(userId);
     }
 
-    @GetMapping("/{userId}/friends/common/{otherUserId}")
-    public Collection<User> getCommonFriends(@PathVariable Integer userId, @PathVariable Integer otherUserId) {
+    @GetMapping("/{user-id}/friends/common/{otherUser-id}")
+    public Collection<User> getCommonFriends(@PathVariable("user-id") Integer userId, @PathVariable("otherUser-id") Integer otherUserId) {
         log.info("Получен запрос на получение списка общих друзей пользователя с id = {} и пользователя с id = {}", userId, otherUserId);
         return userService.getCommonFriends(userId, otherUserId);
     }

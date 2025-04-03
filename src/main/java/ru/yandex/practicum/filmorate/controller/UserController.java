@@ -3,14 +3,15 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Slf4j
 @Getter
@@ -21,6 +22,7 @@ public class UserController {
     private final UserService userService;
     Map<Integer, User> baseOfUsers = new HashMap<>();
 
+    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
@@ -50,7 +52,7 @@ public class UserController {
     }
 
     @PutMapping("/{user-id}/friends/{friend-id}")
-    public Set<Integer> addFriendToUser(@PathVariable("user-id") Integer userId, @PathVariable("friend-id") Integer friendId) {
+    public List<User> addFriendToUser(@PathVariable("user-id") Integer userId, @PathVariable("friend-id") Integer friendId) {
         log.info("Получен запрос на добавление пользователя с id = {} в друзья к пользователю с id = {}", friendId, userId);
         return userService.addFriendToUser(userId, friendId);
     }
@@ -74,7 +76,7 @@ public class UserController {
     }
 
 
-    @PutMapping
+    @PutMapping()
     public User updateUser(@Valid @RequestBody User newUser) {
         log.info("Получен запрос на обновление пользователя с id = {}", newUser.getId());
         return userService.updateUser(newUser);

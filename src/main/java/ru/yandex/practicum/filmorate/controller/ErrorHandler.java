@@ -35,7 +35,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handlerOtherException(Throwable throwable) {
         System.out.println(throwable.getMessage());
-        return new ErrorResponse("Непредвиденная ошибка сервера");
+        return new ErrorResponse("Внутренняя ошибка сервера");
     }
 
 }

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -22,5 +23,11 @@ public class Film {
     LocalDate releaseDate;
     @Positive(message = "Продолжительность фильма должна быть положительным числом!")
     Integer duration;
-    Set<Integer> likesOfUsers = new HashSet<>();
+    Set<Genre> genres = new HashSet<>();
+    @NotNull(message = "рейтинг Ассоциации кинокомпаний не может быть пустым!")
+    Mpa mpa;
+
+    public void addGenre(Genre genre) {
+        genres.add(genre);
+    }
 }
